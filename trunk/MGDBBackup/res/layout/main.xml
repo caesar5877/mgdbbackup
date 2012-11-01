@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#C9F1FF">
+	    <ListView
+	        android:id="@id/android:list"
+	        android:layout_height="wrap_content"
+	        android:layout_width="fill_parent"
+	        android:fadingEdge="none"
+			android:cacheColorHint="#00000000"/>
+	    <RelativeLayout 
+	        android:layout_width="fill_parent" 
+	        android:layout_height="40.0dip" 
+	        android:layout_alignParentBottom="true">
+		<CheckBox android:id="@+id/all_check_btn" 
+		    android:layout_width="40.0dip" 
+		    android:background="@drawable/bottom_back_bg"
+			android:layout_height="40.0dip"  
+			android:layout_alignParentLeft="true"/>
+	</RelativeLayout>
+</RelativeLayout>
