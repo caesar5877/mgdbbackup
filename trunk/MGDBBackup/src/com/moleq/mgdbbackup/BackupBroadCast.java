@@ -19,18 +19,12 @@ public class BackupBroadCast extends BroadcastReceiver
 	private static String DATABASE_NAME = "mpos.db";
 	private static String SDCARD = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
 	private static String LOG_FULL_NAME = SDCARD + "/MoleQ/Properties/Log.txt";
+	private File backupSubFolderPath = null;
 	
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
 		System.out.println("got it");
-		BackupDatabase();
-	}
-	
-
-	public void BackupDatabase()
-	{
-		
 		System.out.println(MainActivity.PATH);
 		String backupRootFolderPath = MainActivity.PATH;
 		
@@ -40,13 +34,29 @@ public class BackupBroadCast extends BroadcastReceiver
 		String timestamp = formatter.format(curDate);
 		//-----time stamp-----//
 		
-		File backupSubFolderPath = new File(backupRootFolderPath + "/" +timestamp);
-		String databaseFileName = "//data//data//com.moleq.posdb//databases//mpos.db";
+		backupSubFolderPath = new File(backupRootFolderPath + "/" +timestamp);
+		backupSubFolderPath.mkdir();
+		
+		for (int i = 0; i < MainActivity.arrayPackage.length; i++)
+		{
+			BackupDatabase(MainActivity.arrayPackage[i], MainActivity.arrayDB[i]);
+		}
+		
+		//BackupDatabase();
+	}
+	
+
+	public void BackupDatabase(String packagePath, String dbName)
+	{
+		
+		
+		//String databaseFileName = "//data//data//com.moleq.posdb//databases//mpos.db";
+		String databaseFileName = "//data//data//"+packagePath+"//databases//"+dbName;
 		try
 		{
-			backupSubFolderPath.mkdir();
+			
 			InputStream is = new FileInputStream(new File(databaseFileName));
-			FileOutputStream fos = new FileOutputStream(backupSubFolderPath+"/"+DATABASE_NAME);
+			FileOutputStream fos = new FileOutputStream(backupSubFolderPath+"/"+dbName);
 
 			byte[] buffer = new byte[8192];
 			int count = 0;
@@ -56,7 +66,7 @@ public class BackupBroadCast extends BroadcastReceiver
 			}
 			fos.close();
 			is.close();
-			writeLog(LOG_FULL_NAME,"Success!-->"+backupSubFolderPath+"/"+DATABASE_NAME);
+			writeLog(LOG_FULL_NAME,"Success!-->"+backupSubFolderPath+"/"+dbName);
 			
 		} catch (Exception e)
 		{
