@@ -22,6 +22,7 @@ import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,8 +43,15 @@ import com.moleq.db.SharedContext;
 
 public class MainActivity extends ListActivity implements OnTimeSetListener
 {
+	public static Context[] arrayContexts = null;
+	public static String[] arrayDB = null;
+	public static String[] arrayPackage = null;
+	
 	private Context sharedContext = null;
+	private Context sharedContext2 = null;
 	private DBHelper dbHelper = null;
+	private DBHelper dbHelper2 = null;
+	
 	Calendar calendar = Calendar.getInstance();
 	
 	///--------------begin-----------SDCARD--------------------------
@@ -60,9 +68,20 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	public static File PROP_FILE = new File(PROP_PATH+ "/"+PROP_NAME);
 	public static String PROP_FULL_NAME = PROP_PATH+ "/"+PROP_NAME;
 	
+	public static String DB_CONFIG_NAME = "dbconfig.dat";
+	public static File DB_CONFIG_FILE = new File(PROP_PATH+ "/"+DB_CONFIG_NAME);
+	public static String DB_CONFIG_FULL_NAME = PROP_PATH+ "/"+DB_CONFIG_NAME;
+	
 	public static String LOG_NAME = "Log.txt";
 	public static String LOG_FULL_NAME = PROP_PATH+"/" + LOG_NAME;
 	///---------------end  ----------SDCARD--------------------------
+	
+	///--------------begin-----------Backup Properties--------------------------
+	public static String DAYS = "5";
+	
+	
+	///--------------end-------------Backup Properties--------------------------
+	
 	
 	private BackupSetting bSetting;
 	private ArrayList<HashMap<String, Object>> listItem;
@@ -81,27 +100,84 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		super.onCreate(savedInstanceState);
 		//setContentView(R.layout.main);
 		try
-		{
-			sharedContext = this.createPackageContext("com.moleq.posdb",
-					Context.CONTEXT_IGNORE_SECURITY);
-			SharedContext.context = sharedContext;
-			if (sharedContext == null)
+		{	
+			
+			
+			
+			setDB();
+			/*
+			BackupSetting backupSetting = new BackupSetting();
+			Properties properties = backupSetting.loadConfig(this, DB_CONFIG_FULL_NAME);
+			System.out.println(properties.size());
+			int length = properties.size()/2;
+			arrayContexts = new Context[length];
+			arrayDB = new String[length];
+			arrayPackage = new String[length];
+			for (int i = 0; i < length; i++)
 			{
-				System.out.println("sharedContext == null");
+				arrayContexts[i] = this.createPackageContext((String)properties.getProperty("p"+i), Context.CONTEXT_IGNORE_SECURITY);
+				System.out.println((String)properties.get("db"+i));
+				String str = (String)properties.get("db"+i);
+				arrayDB[i] =str;
+				arrayPackage[i] =(String) properties.get("p"+i);
+			}
+			
+			
+			sharedContext = this.createPackageContext("com.moleq.posdb",Context.CONTEXT_IGNORE_SECURITY);
+			sharedContext2 = this.createPackageContext("com.example.demo", Context.CONTEXT_IGNORE_SECURITY);
+			
+			SharedContext.context = sharedContext;
+			if (sharedContext2 == null)
+			{
+				System.out.println("sharedContext2 == null");
 				return;
 			}
+			else 
+			{
+				System.out.println("sharedContext2 != null");
+				
+			}*/
 		} catch (Exception e)
 		{
 			String error = e.getMessage();
 			return;
 		}
 		
-		dbHelper = new DBHelper(sharedContext, "mpos.db");
+		/*dbHelper = new DBHelper(sharedContext, "mpos.db");
+		dbHelper2 = new DBHelper(sharedContext2, "person.db");*/
+		
 		check();
 		display();
-		writeLog(LOG_FULL_NAME, "error message!");
+		//writeLog(LOG_FULL_NAME, "error message!");
 		//readLog(LOG_FULL_NAME);
 		
+	}
+	
+	public void setDB()
+	{
+		bSetting = new BackupSetting();
+		pro = bSetting.loadConfig(this, PROP_FULL_NAME);
+		String dbNameString =(String) pro.get("i7");
+		
+		try
+		{
+			String[] arr = dbNameString.split("\\|");
+			int length = arr.length;
+			System.out.println(arr.length);
+			arrayContexts = new Context[length];
+			arrayDB = new String[length];
+			arrayPackage = new String[length];
+			for (int i = 0; i < arr.length; i++)
+			{
+				String[] arrSub = arr[i].split("--");
+				arrayContexts[i] = this.createPackageContext(arrSub[1], CONTEXT_IGNORE_SECURITY);
+				arrayDB[i] = arrSub[0];
+				arrayPackage[i] = arrSub[1];
+			}
+		} catch (Exception e)
+		{
+			writeLog(LOG_FULL_NAME, e.getMessage());
+		}
 	}
 	
 	//---begin---check---// 
@@ -130,6 +206,18 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			}
 			Toast("Create a Property File");
 		}
+		if (!DB_CONFIG_FILE.exists())
+		{
+			try
+			{
+				initDBConfig();
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			Toast("Create a configuration File");
+		}
+		
 		if (!PATH_FILE.exists())
 		{
 			PATH_FILE.mkdirs();
@@ -184,13 +272,19 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			map = new HashMap<String, Object>();
 			map.put("title", pro.get("t6"));
 			map.put("info", pro.get("i6"));
-			map.put("img", R.drawable.syncname3);
+			map.put("img", R.drawable.syncname2);
+			listItem.add(map);
+			
+			map = new HashMap<String, Object>();
+			map.put("title", pro.get("t7"));
+			map.put("info", pro.get("i7"));
+			map.put("img", R.drawable.database);
 			listItem.add(map);
 			
 			map = new HashMap<String, Object>();
 			map.put("title", "");
 			map.put("info", "");
-			map.put("img", R.drawable.door3);
+			map.put("img", R.drawable.exit);
 			listItem.add(map);
 			adapter = new MyAdapter(this,listItem);
 			setListAdapter(adapter);
@@ -239,13 +333,19 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			map = new HashMap<String, Object>();
 			map.put("title", pro.get("t6"));
 			map.put("info", pro.get("i6"));
-			map.put("img", R.drawable.syncname3);
+			map.put("img", R.drawable.syncname2);
+			listItem.add(map);
+			
+			map = new HashMap<String, Object>();
+			map.put("title", pro.get("t7"));
+			map.put("info", pro.get("i7"));
+			map.put("img", R.drawable.database);
 			listItem.add(map);
 			
 			map = new HashMap<String, Object>();
 			map.put("title", "");
 			map.put("info", "");
-			map.put("img",  R.drawable.door3);
+			map.put("img",  R.drawable.exit);
 			listItem.add(map);
 			adapter.setSource(listItem);
 			adapter.notifyDataSetChanged();
@@ -345,6 +445,8 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			if (position==5)
 				holder.viewBtn.setText("Click");
 			if (position==6)
+				holder.viewBtn.setText("Click");
+			if (position==7)
 				holder.viewBtn.setText("Exit");
 			
 			
@@ -383,8 +485,14 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 					{
 						backupNow("Backup", "Do You Backup Database Immediately?");
 					}
-					
 					if (position==6)
+					{
+						Intent intent = new Intent();
+						intent.setClass(MainActivity.this, ListViewCheckBoxActivity.class);
+						MainActivity.this.startActivityForResult(intent,5);
+					}
+					
+					if (position==7)
 					{
 						exit("Exit", "Do You Want To Exit?");
 					}
@@ -472,7 +580,6 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 					PATH = Path;
 					display();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -483,24 +590,60 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			try
 			{
 				Bundle bundle = data.getExtras();
-				String days = bundle.getString("days");
-				System.out.println("days-->"+days);
-				if (days != null)
+				DAYS = bundle.getString("days");
+				System.out.println("days-->"+DAYS);
+				if (DAYS != null)
 				{
 					bSetting = new BackupSetting();
 					pro = bSetting.loadConfig(this, PROP_FULL_NAME);
-					pro.setProperty("i5", days);
+					pro.setProperty("i5", DAYS);
 					bSetting.saveConfig(this, PROP_FULL_NAME, pro);
 					display();
-					deleteDB(Integer.parseInt(days));
+					//deleteDB(Integer.parseInt(DAYS));
 				}
 			} catch (Exception e)
 			{
-				// TODO: handle exception
+				DAYS = (String) pro.get("i5");
 			}
 		}
-		
+		if (requestCode == 5)
+		{
+			String dbNameString = "";
+			try
+			{
+				Bundle bundle = data.getExtras();
+				dbNameString = bundle.getString("dbNameString");
+				System.out.println("dbNameString-->"+dbNameString);
+				if (dbNameString != null)
+				{
+					String[] arr = dbNameString.split("\\|");
+					int length = arr.length;
+					System.out.println(arr.length);
+					arrayContexts = new Context[length];
+					arrayDB = new String[length];
+					arrayPackage = new String[length];
+					for (int i = 0; i < arr.length; i++)
+					{
+						String[] arrSub = arr[i].split("--");
+						arrayContexts[i] = this.createPackageContext(arrSub[1], CONTEXT_IGNORE_SECURITY);
+						arrayDB[i] = arrSub[0];
+						arrayPackage[i] = arrSub[1];
+					}
+					BackupSetting bSetting = new BackupSetting();
+					Properties pro = bSetting.loadConfig(this, PROP_FULL_NAME);
+					pro.setProperty("i7", dbNameString);
+					bSetting.saveConfig(MainActivity.this, PROP_FULL_NAME, pro);
+					display();
+							
+				}
+			} catch (Exception e)
+			{
+				dbNameString = (String)pro.get("i7");
+			}
+		}
 	}
+	
+	
 	
 	
 	public void logDialogWindow()
@@ -526,7 +669,9 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 				hm.put("data", s);
 				if (s.contains("Success"))
 					hm.put("image", R.drawable.checkg);
-				else 
+				else if (s.contains("Deleted"))
+					hm.put("image", R.drawable.warning1);
+				else
 					hm.put("image", R.drawable.error);
 				data.add(hm);
 			}
@@ -581,12 +726,19 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	
 	public void startIntent()
 	{
-		Intent intent = new Intent(MainActivity.this, BackupBroadCast.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(
-				getApplicationContext(), 0, intent, 0);
-		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-				calendar.getTimeInMillis(), 24*3600*1000, pendingIntent);
+		try
+		{
+			Intent intent = new Intent(MainActivity.this, BackupBroadCast.class);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(
+					getApplicationContext(), 0, intent, 0);
+			AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+					calendar.getTimeInMillis(), 24*3600*1000, pendingIntent);
+			deleteDB(Integer.parseInt(DAYS));
+		} catch (Exception e)
+		{
+			writeLog(LOG_FULL_NAME, e.getMessage());
+		}
 	}
 	
 	public void cancelIntent()
@@ -655,15 +807,29 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		pro.put("t4", "Backup Status");
 		pro.put("t5", "How Many Days Backups");
 		pro.put("t6", "Backup DB Now");
+		pro.put("t7", "Backup Multiple DBs");
 		pro.put("i1", "/mnt/sdcard/MoleQ/dbbackup/");
 		pro.put("i2", "OFF");
 		pro.put("i3", "hh:mm");
 		pro.put("i4", "/mnt/sdcard/MoleQ/Properties/Log.txt");
-		pro.put("i5", "5");
+		pro.put("i5", DAYS);
 		pro.put("i6", "");
+		pro.put("i7", "");
 		bSetting.saveConfig(this, PROP_FULL_NAME, pro);
 	}
 	//--end--init---//
+	
+	
+	public void initDBConfig()
+	{
+		BackupSetting backupSetting = new BackupSetting();
+		Properties properties = new Properties();
+		properties.put("p0", "com.moleq.posdb");
+		properties.put("p1", "com.example.demo");
+		properties.put("db0", "mpos.db");
+		properties.put("db1", "person.db");
+		backupSetting.saveConfig(this, DB_CONFIG_FULL_NAME, properties);
+	}
 	
 	//--begin--Toast--//
 	public void Toast(String str)
@@ -739,9 +905,9 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 
 					if (dec >= day)
 					{
-						System.out.println(delFile[j].getName());
+						//System.out.println(delFile[j].getName());
 						del(delFile[j].getAbsolutePath());
-						System.out.println(delFile[j].getAbsolutePath());
+						//System.out.println(delFile[j].getAbsolutePath());
 						//delFile[j].delete();
 					}
 				}
@@ -774,6 +940,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			if (f.listFiles().length == 0)
 			{
 				f.delete();
+				writeLog(LOG_FULL_NAME, "Deleted!-->"+ f.getAbsolutePath());
 			} 
 		}
 	}
