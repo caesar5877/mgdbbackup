@@ -150,14 +150,23 @@ public class FilePickerActivity extends Activity
 			return;
 		}else 
 		{
-			Bundle bundle = new Bundle();
-			bundle.putString("path", mCurrentDirectory.getPath()
-					+ "/" + name + "/");
-			
-			Intent intent = new Intent();
-			intent.putExtras(bundle);
-			setResult(RESULT_OK, intent);
-			FilePickerActivity.this.finish();
+			//System.out.println("name-->"+name);
+			if("Back...".equals(name))
+			{
+				Toast("It is NOT a Folder!");
+				return;
+			}
+			else 
+			{
+				Bundle bundle = new Bundle();
+				bundle.putString("path", mCurrentDirectory.getPath()
+						+ "/" + name + "/");
+				
+				Intent intent = new Intent();
+				intent.putExtras(bundle);
+				setResult(RESULT_OK, intent);
+				FilePickerActivity.this.finish();
+			}
 		}
 	}
 
