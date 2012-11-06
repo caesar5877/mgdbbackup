@@ -25,8 +25,8 @@ public class BackupBroadCast extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		System.out.println("got it");
-		System.out.println(MainActivity.PATH);
-		String backupRootFolderPath = MainActivity.PATH;
+		System.out.println(MainActivity.i1);
+		String backupRootFolderPath = MainActivity.i1;
 		
 		//-----time stamp-----// 
 		Date curDate = new Date(System.currentTimeMillis());
