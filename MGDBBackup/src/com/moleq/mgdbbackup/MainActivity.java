@@ -22,7 +22,6 @@ import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,20 +36,11 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-
-import com.moleq.db.DBHelper;
-import com.moleq.db.SharedContext;
-
 public class MainActivity extends ListActivity implements OnTimeSetListener
 {
 	public static Context[] arrayContexts = null;
 	public static String[] arrayDB = null;
 	public static String[] arrayPackage = null;
-	
-	private Context sharedContext = null;
-	private Context sharedContext2 = null;
-	private DBHelper dbHelper = null;
-	private DBHelper dbHelper2 = null;
 	
 	Calendar calendar = Calendar.getInstance();
 	
@@ -102,61 +92,93 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		//setContentView(R.layout.main);
-		try
-		{	
-			
-			
-			/*
-			BackupSetting backupSetting = new BackupSetting();
-			Properties properties = backupSetting.loadConfig(this, DB_CONFIG_FULL_NAME);
-			System.out.println(properties.size());
-			int length = properties.size()/2;
-			arrayContexts = new Context[length];
-			arrayDB = new String[length];
-			arrayPackage = new String[length];
-			for (int i = 0; i < length; i++)
-			{
-				arrayContexts[i] = this.createPackageContext((String)properties.getProperty("p"+i), Context.CONTEXT_IGNORE_SECURITY);
-				System.out.println((String)properties.get("db"+i));
-				String str = (String)properties.get("db"+i);
-				arrayDB[i] =str;
-				arrayPackage[i] =(String) properties.get("p"+i);
-			}
-			
-			
-			sharedContext = this.createPackageContext("com.moleq.posdb",Context.CONTEXT_IGNORE_SECURITY);
-			sharedContext2 = this.createPackageContext("com.example.demo", Context.CONTEXT_IGNORE_SECURITY);
-			
-			SharedContext.context = sharedContext;
-			if (sharedContext2 == null)
-			{
-				System.out.println("sharedContext2 == null");
-				return;
-			}
-			else 
-			{
-				System.out.println("sharedContext2 != null");
-				
-			}*/
-		} catch (Exception e)
-		{
-			String error = e.getMessage();
-			return;
-		}
-		
-		/*dbHelper = new DBHelper(sharedContext, "mpos.db");
-		dbHelper2 = new DBHelper(sharedContext2, "person.db");*/
 		
 		check();
 		loadConfig();
 		setDB();
 		display();
-		
-		//writeLog(LOG_FULL_NAME, "error message!");
-		//readLog(LOG_FULL_NAME);
-		
 	}
+	
+	//---begin---check---// 
+		public void check()
+		{
+			if(!android.os.Environment.MEDIA_MOUNTED.equals(android.os.Environment.getExternalStorageState()))
+			{
+				Toast("No Valid SDCard!");
+				return;
+			}
+				
+			if (!PROP_PATH.exists())
+			{
+				
+				PROP_PATH.mkdirs();
+				Toast("Create a Properties Folder");
+			}
+			if (!PROP_FILE.exists())
+			{
+				try
+				{
+					initProperties();
+				} catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+				Toast("Create a Property File");
+			}
+			if (!DB_CONFIG_FILE.exists())
+			{
+				try
+				{
+					initDBConfig();
+				} catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+				Toast("Create a configuration File");
+			}
+			
+			if (!PATH_FILE.exists())
+			{
+				PATH_FILE.mkdirs();
+				Toast("Create a dbbackup Folder");
+			}
+		}
+		//---end---check---// 
+	
+	
+	//--begin--init---//
+		public void initProperties()
+		{
+			bSetting = new BackupSetting();
+			pro = new Properties();
+			pro.put("t1", "Backup Folder");
+			pro.put("t2", "Enable auto-backup");
+			pro.put("t3", "Auto-backup time");
+			pro.put("t4", "Backup Status");
+			pro.put("t5", "How Many Days Backups");
+			pro.put("t6", "Backup DB Now");
+			pro.put("t7", "Backup Multiple DBs");
+			pro.put("i1", "/mnt/sdcard/MoleQ/dbbackup/");
+			pro.put("i2", "OFF");
+			pro.put("i3", "0:0");
+			pro.put("i4", "/mnt/sdcard/MoleQ/Properties/Log.txt");
+			pro.put("i5", "5");
+			pro.put("i6", "");
+			pro.put("i7", "mpos.db--com.moleq.posdb|");
+			bSetting.saveConfig(this, PROP_FULL_NAME, pro);
+		}
+		
+		public void initDBConfig()
+		{
+			BackupSetting backupSetting = new BackupSetting();
+			Properties properties = new Properties();
+			properties.put("p0", "com.moleq.posdb");
+			properties.put("p1", "com.example.demo");
+			properties.put("db0", "mpos.db");
+			properties.put("db1", "person.db");
+			backupSetting.saveConfig(this, DB_CONFIG_FULL_NAME, properties);
+		}
+		//--end--init---//
 	
 	public void loadConfig()
 	{
@@ -167,7 +189,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		i1 = (String) pro.get("i1");
 		i2 = (String) pro.get("i2");
 		i3 = (String) pro.get("i3");
-		System.out.println("i3-->"+i3);
+		//System.out.println("i3-->"+i3);
 		String[] arr = i3.split(":");
 		hourOfDay = Integer.parseInt(arr[0]);
 		minute = Integer.parseInt(arr[1]);
@@ -182,7 +204,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		{
 			String[] arr = i7.split("\\|");
 			int length = arr.length;
-			System.out.println(arr.length);
+			//System.out.println(arr.length);
 			arrayContexts = new Context[length];
 			arrayDB = new String[length];
 			arrayPackage = new String[length];
@@ -199,51 +221,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		}
 	}
 	
-	//---begin---check---// 
-	public void check()
-	{
-		if(!android.os.Environment.MEDIA_MOUNTED.equals(android.os.Environment.getExternalStorageState()))
-		{
-			Toast("No Valid SDCard!");
-			return;
-		}
-			
-		if (!PROP_PATH.exists())
-		{
-			
-			PROP_PATH.mkdirs();
-			Toast("Create a Folder");
-		}
-		if (!PROP_FILE.exists())
-		{
-			try
-			{
-				initProperties();
-			} catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-			Toast("Create a Property File");
-		}
-		if (!DB_CONFIG_FILE.exists())
-		{
-			try
-			{
-				initDBConfig();
-			} catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-			Toast("Create a configuration File");
-		}
-		
-		if (!PATH_FILE.exists())
-		{
-			PATH_FILE.mkdirs();
-			Toast("Create a dbbackup Folder");
-		}
-	}
-	//---end---check---// 
+	
 	
 	//----begin---display---------//
 	public void display()
@@ -275,7 +253,6 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			
 			map = new HashMap<String, Object>();
 			map.put("title", pro.get("t3"));
-			
 			if ((hourOfDay+"").length()==1)
 				hourOfDayStr = "0"+hourOfDay;
 			else
@@ -566,9 +543,6 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 						dialog.cancel();
 					}
 				}).create().show();
-		
-		
-		
 	}
 	
 	
@@ -633,7 +607,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			{
 				Bundle bundle = data.getExtras();
 				i5 = bundle.getString("days");
-				System.out.println("days-->"+i5);
+				//System.out.println("days-->"+i5);
 				if (i5 != null)
 				{
 					bSetting = new BackupSetting();
@@ -650,17 +624,16 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		}
 		if (requestCode == 5)
 		{
-			String dbNameString = "";
 			try
 			{
 				Bundle bundle = data.getExtras();
-				dbNameString = bundle.getString("dbNameString");
-				System.out.println("dbNameString-->"+dbNameString);
-				if (dbNameString != null)
+				i7 = bundle.getString("dbNameString");
+				//System.out.println("dbNameString-->"+i7);
+				if (i7 != null)
 				{
-					String[] arr = dbNameString.split("\\|");
+					String[] arr = i7.split("\\|");
 					int length = arr.length;
-					System.out.println(arr.length);
+					//System.out.println(arr.length);
 					arrayContexts = new Context[length];
 					arrayDB = new String[length];
 					arrayPackage = new String[length];
@@ -673,14 +646,13 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 					}
 					BackupSetting bSetting = new BackupSetting();
 					Properties pro = bSetting.loadConfig(this, PROP_FULL_NAME);
-					pro.setProperty("i7", dbNameString);
+					pro.setProperty("i7", i7);
 					bSetting.saveConfig(MainActivity.this, PROP_FULL_NAME, pro);
 					display();
-							
 				}
 			} catch (Exception e)
 			{
-				dbNameString = (String)pro.get("i7");
+				i7 = (String)pro.get("i7");
 			}
 		}
 	}
@@ -770,13 +742,10 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	{
 		try
 		{
-			System.out.println("startIntent() is running.....................");
 			Intent intent = new Intent(MainActivity.this, BackupBroadCast.class);
-			PendingIntent pendingIntent = PendingIntent.getBroadcast(
-					getApplicationContext(), 0, intent, 0);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
 			AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-					calendar.getTimeInMillis(), 24*3600*1000, pendingIntent);
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(), 24*3600*1000, pendingIntent);
 			deleteDB(Integer.parseInt(i5));
 		} catch (Exception e)
 		{
@@ -806,53 +775,16 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		calendar.set(Calendar.MINUTE, min);
 		
 		if ("ON".equals(pro.getProperty("i2")))
-		{
-			System.out.println("ON................");
 			startIntent();
-		} 
 		else
-		{
 			Toast("Warning:--Enable auto-backup is OFF--");
-		}
 		display();
 	}
 	//--end--set alarm and broadcast--//
 	
 	
-	//--begin--init---//
-	public void initProperties()
-	{
-		bSetting = new BackupSetting();
-		pro = new Properties();
-		pro.put("t1", "Backup Folder");
-		pro.put("t2", "Enable auto-backup");
-		pro.put("t3", "Auto-backup time");
-		pro.put("t4", "Backup Status");
-		pro.put("t5", "How Many Days Backups");
-		pro.put("t6", "Backup DB Now");
-		pro.put("t7", "Backup Multiple DBs");
-		pro.put("i1", "/mnt/sdcard/MoleQ/dbbackup/");
-		pro.put("i2", "OFF");
-		pro.put("i3", "0:0");
-		pro.put("i4", "/mnt/sdcard/MoleQ/Properties/Log.txt");
-		pro.put("i5", "5");
-		pro.put("i6", "");
-		pro.put("i7", "mpos.db--com.moleq.posdb|");
-		bSetting.saveConfig(this, PROP_FULL_NAME, pro);
-	}
-	//--end--init---//
 	
 	
-	public void initDBConfig()
-	{
-		BackupSetting backupSetting = new BackupSetting();
-		Properties properties = new Properties();
-		properties.put("p0", "com.moleq.posdb");
-		properties.put("p1", "com.example.demo");
-		properties.put("db0", "mpos.db");
-		properties.put("db1", "person.db");
-		backupSetting.saveConfig(this, DB_CONFIG_FULL_NAME, properties);
-	}
 	
 	//--begin--Toast--//
 	public void Toast(String str)
