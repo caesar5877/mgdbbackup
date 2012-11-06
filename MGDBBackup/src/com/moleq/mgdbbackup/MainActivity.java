@@ -57,7 +57,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	///--------------begin-----------SDCARD--------------------------
 	public static String DATABASE_NAME = "mpos.db";
 	public static String SDCARD = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-	public static String PATH = "";
+	
 	public static File PATH_FILE = new File(SDCARD + "/MoleQ/dbbackup/");
 	public static File SDCARD_DB_FILENAME = new File(PATH_FILE + "/"+ DATABASE_NAME);
 	
@@ -77,9 +77,13 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	///---------------end  ----------SDCARD--------------------------
 	
 	///--------------begin-----------Backup Properties--------------------------
-	public static String DAYS = "5";
-	
-	
+	public static String i5 = "";
+	public static String i7 = "";
+	public static String i3 = "";
+	public static String i2 = "";
+	public static String i1 = "";
+	public static int hourOfDay = 0;
+	public static int minute = 0;
 	///--------------end-------------Backup Properties--------------------------
 	
 	
@@ -103,8 +107,6 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		{	
 			
 			
-			
-			setDB();
 			/*
 			BackupSetting backupSetting = new BackupSetting();
 			Properties properties = backupSetting.loadConfig(this, DB_CONFIG_FULL_NAME);
@@ -147,21 +149,38 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		dbHelper2 = new DBHelper(sharedContext2, "person.db");*/
 		
 		check();
+		loadConfig();
+		setDB();
 		display();
+		
 		//writeLog(LOG_FULL_NAME, "error message!");
 		//readLog(LOG_FULL_NAME);
 		
 	}
 	
-	public void setDB()
+	public void loadConfig()
 	{
 		bSetting = new BackupSetting();
 		pro = bSetting.loadConfig(this, PROP_FULL_NAME);
-		String dbNameString =(String) pro.get("i7");
+		i7 = (String) pro.get("i7");
+		i5 = (String) pro.get("i5");
+		i1 = (String) pro.get("i1");
+		i2 = (String) pro.get("i2");
+		i3 = (String) pro.get("i3");
+		System.out.println("i3-->"+i3);
+		String[] arr = i3.split(":");
+		hourOfDay = Integer.parseInt(arr[0]);
+		minute = Integer.parseInt(arr[1]);
 		
+		calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+		calendar.set(Calendar.MINUTE, minute);
+	}
+	
+	public void setDB()
+	{
 		try
 		{
-			String[] arr = dbNameString.split("\\|");
+			String[] arr = i7.split("\\|");
 			int length = arr.length;
 			System.out.println(arr.length);
 			arrayContexts = new Context[length];
@@ -229,6 +248,8 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	//----begin---display---------//
 	public void display()
 	{
+		String hourOfDayStr = "";
+		String minuteStr = "";
 		if (listItem == null)
 		{
 			listItem = new ArrayList<HashMap<String,Object>>();
@@ -251,9 +272,20 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 				map.put("img", R.drawable.on);
 			listItem.add(map);
 
+			
 			map = new HashMap<String, Object>();
 			map.put("title", pro.get("t3"));
-			map.put("info", pro.get("i3"));
+			
+			if ((hourOfDay+"").length()==1)
+				hourOfDayStr = "0"+hourOfDay;
+			else
+				hourOfDayStr = ""+hourOfDay;
+			if((minute+"").length()==1)
+				minuteStr = "0"+minute;
+			else
+				minuteStr = "" + minute; 
+			
+			map.put("info", hourOfDayStr+":"+minuteStr);
 			map.put("img", R.drawable.clock);
 			listItem.add(map);
 			
@@ -289,7 +321,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			adapter = new MyAdapter(this,listItem);
 			setListAdapter(adapter);
 			
-			PATH = pro.get("i1").toString().trim();
+			i1 = pro.get("i1").toString().trim();
 		}
 		else 
 		{
@@ -314,7 +346,17 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 
 			map = new HashMap<String, Object>();
 			map.put("title", pro.get("t3"));
-			map.put("info", pro.get("i3"));
+			
+			if ((hourOfDay+"").length()==1)
+				hourOfDayStr = "0"+hourOfDay;
+			else
+				hourOfDayStr = ""+hourOfDay;
+			if((minute+"").length()==1)
+				minuteStr = "0"+minute;
+			else
+				minuteStr = "" + minute; 
+			
+			map.put("info", hourOfDayStr+":"+minuteStr);
 			map.put("img", R.drawable.clock);
 			listItem.add(map);
 			
@@ -350,7 +392,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			adapter.setSource(listItem);
 			adapter.notifyDataSetChanged();
 			
-			PATH = pro.get("i1").toString().trim();
+			i1 = pro.get("i1").toString().trim();
 		}
 		
 	}
@@ -577,7 +619,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 					pro = bSetting.loadConfig(this, PROP_FULL_NAME);
 					pro.setProperty("i1", Path);
 					bSetting.saveConfig(this, PROP_FULL_NAME, pro);
-					PATH = Path;
+					i1 = Path;
 					display();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -590,20 +632,20 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			try
 			{
 				Bundle bundle = data.getExtras();
-				DAYS = bundle.getString("days");
-				System.out.println("days-->"+DAYS);
-				if (DAYS != null)
+				i5 = bundle.getString("days");
+				System.out.println("days-->"+i5);
+				if (i5 != null)
 				{
 					bSetting = new BackupSetting();
 					pro = bSetting.loadConfig(this, PROP_FULL_NAME);
-					pro.setProperty("i5", DAYS);
+					pro.setProperty("i5", i5);
 					bSetting.saveConfig(this, PROP_FULL_NAME, pro);
 					display();
 					//deleteDB(Integer.parseInt(DAYS));
 				}
 			} catch (Exception e)
 			{
-				DAYS = (String) pro.get("i5");
+				i5 = (String) pro.get("i5");
 			}
 		}
 		if (requestCode == 5)
@@ -728,16 +770,17 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	{
 		try
 		{
+			System.out.println("startIntent() is running.....................");
 			Intent intent = new Intent(MainActivity.this, BackupBroadCast.class);
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(
 					getApplicationContext(), 0, intent, 0);
 			AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
 					calendar.getTimeInMillis(), 24*3600*1000, pendingIntent);
-			deleteDB(Integer.parseInt(DAYS));
+			deleteDB(Integer.parseInt(i5));
 		} catch (Exception e)
 		{
-			writeLog(LOG_FULL_NAME, e.getMessage());
+			writeLog(LOG_FULL_NAME, e.getMessage()+".........");
 		}
 	}
 	
@@ -750,27 +793,17 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	}
 
 	//--begin--set alarm and broadcast--//
-	public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+	public void onTimeSet(TimePicker view, int hod, int min)
 	{
-		String hourOfDayStr = "";
-		String minuteStr = "";
-		System.out.println("onTimeSet"+"  "+ hourOfDay+ "  "+minute);
-		if ((hourOfDay+"").length()==1)
-			hourOfDayStr = "0"+hourOfDay;
-		else
-			hourOfDayStr = ""+hourOfDay;
-		if((minute+"").length()==1)
-			minuteStr = "0"+minute;
-		else
-			minuteStr = "" + minute; 
-		
-		
+		System.out.println("onTimeSet"+"  "+ hod+ "  "+min);
 		bSetting = new BackupSetting();
-		pro.setProperty("i3", hourOfDayStr+":"+minuteStr);
+		pro.setProperty("i3", hod+":"+min);
 		bSetting.saveConfig(this, PROP_FULL_NAME, pro);
+		hourOfDay = hod;
+		minute = min;
 		
-		calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-		calendar.set(Calendar.MINUTE, minute);
+		calendar.set(Calendar.HOUR_OF_DAY, hod);
+		calendar.set(Calendar.MINUTE, min);
 		
 		if ("ON".equals(pro.getProperty("i2")))
 		{
@@ -781,16 +814,6 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		{
 			Toast("Warning:--Enable auto-backup is OFF--");
 		}
-
-		
-		/*
-		if (flag)
-		{
-			System.out.println("flag-->true");
-			alarmManager.set(AlarmManager.RTC_WAKEUP,
-					calendar.getTimeInMillis(), pendingIntent);
-		}
-		*/
 		display();
 	}
 	//--end--set alarm and broadcast--//
@@ -810,11 +833,11 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		pro.put("t7", "Backup Multiple DBs");
 		pro.put("i1", "/mnt/sdcard/MoleQ/dbbackup/");
 		pro.put("i2", "OFF");
-		pro.put("i3", "hh:mm");
+		pro.put("i3", "0:0");
 		pro.put("i4", "/mnt/sdcard/MoleQ/Properties/Log.txt");
-		pro.put("i5", DAYS);
+		pro.put("i5", "5");
 		pro.put("i6", "");
-		pro.put("i7", "");
+		pro.put("i7", "mpos.db--com.moleq.posdb|");
 		bSetting.saveConfig(this, PROP_FULL_NAME, pro);
 	}
 	//--end--init---//
@@ -880,7 +903,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	//-----begin----deletedb--------------//
 	public void deleteDB(int day) throws Exception
 	{
-		PATH_FILE = new File(PATH);
+		PATH_FILE = new File(i1);
 		System.out.println("deleteDB-->" + PATH_FILE);
 		Date date;
 		Date dateNow;
