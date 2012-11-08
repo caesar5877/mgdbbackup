@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.moleq.mgdbbackup"
-    android:sharedUserId="com.moleq"
+    android:sharedUserId="moleq.db"
     android:versionCode="1"
     android:versionName="1.0" >
     
@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>  
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
         android:icon="@drawable/moleq_logo"
         android:label="@string/app_name"
@@ -25,8 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-         <activity
+                <activity
             android:name=".winActivity"
             android:label=""
             android:theme="@android:style/Theme.Dialog" >
@@ -36,8 +36,24 @@
             android:label="@string/app_name"
             android:screenOrientation="landscape" >
         </activity>
+        <activity
+            android:name=".ListViewCheckBoxActivity"
+            android:label=""
+            android:screenOrientation="landscape" >
+        </activity>
+
+        <receiver android:name=".BackupBroadCast" />
+        <receiver android:name=".MyReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
         
-       <receiver android:name="BackupBroadCast"/>
+        <service android:name=".RunService" >
+            <intent-filter>
+                <action android:name="com.android.runservice" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
