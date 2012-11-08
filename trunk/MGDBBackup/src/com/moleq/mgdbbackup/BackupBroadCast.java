@@ -23,23 +23,72 @@ public class BackupBroadCast extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		System.out.println("got it");
-		System.out.println(MainActivity.i1);
-		String backupRootFolderPath = MainActivity.i1;
-		
-		//-----time stamp-----// 
-		Date curDate = new Date(System.currentTimeMillis());
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-		String timestamp = formatter.format(curDate);
-		//-----time stamp-----//
-		
-		backupSubFolderPath = new File(backupRootFolderPath + "/" +timestamp);
-		backupSubFolderPath.mkdir();
-		
-		for (int i = 0; i < MainActivity.arrayPackage.length; i++)
+		try
 		{
-			BackupDatabase(MainActivity.arrayPackage[i], MainActivity.arrayDB[i]);
+			System.out.println("intent-->"+intent.getExtras().getString("type"));
+			if ("Service".equals(intent.getExtras().getString("type")))
+			{
+				System.out.println("got it-->Service");
+				String backupRootFolderPath = RunService.i1;
+				
+				//-----time stamp-----// 
+				Date curDate = new Date(System.currentTimeMillis());
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+				String timestamp = formatter.format(curDate);
+				//-----time stamp-----//
+				
+				backupSubFolderPath = new File(backupRootFolderPath + "/" +timestamp);
+				backupSubFolderPath.mkdir();
+				
+				for (int i = 0; i < RunService.arrayPackage.length; i++)
+				{
+					BackupDatabase(RunService.arrayPackage[i], RunService.arrayDB[i]);
+				}
+			} 
+			else if("Activity".equals(intent.getExtras().getString("type")))
+			{
+				System.out.println("got it-->Activity");
+				String backupRootFolderPath = MainActivity.i1;
+				
+				//-----time stamp-----// 
+				Date curDate = new Date(System.currentTimeMillis());
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+				String timestamp = formatter.format(curDate);
+				//-----time stamp-----//
+				
+				backupSubFolderPath = new File(backupRootFolderPath + "/" +timestamp);
+				backupSubFolderPath.mkdir();
+				
+				for (int i = 0; i < MainActivity.arrayPackage.length; i++)
+				{
+					BackupDatabase(MainActivity.arrayPackage[i], MainActivity.arrayDB[i]);
+				}
+			}
+			else if ("Now".equals(intent.getExtras().getString("type")))
+			{
+				System.out.println("got it-->Now");
+				String backupRootFolderPath = MainActivity.i1;
+				
+				//-----time stamp-----// 
+				Date curDate = new Date(System.currentTimeMillis());
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+				String timestamp = formatter.format(curDate);
+				//-----time stamp-----//
+				
+				backupSubFolderPath = new File(backupRootFolderPath + "/" +timestamp);
+				backupSubFolderPath.mkdir();
+				
+				for (int i = 0; i < MainActivity.arrayPackage.length; i++)
+				{
+					BackupDatabase(MainActivity.arrayPackage[i], MainActivity.arrayDB[i]);
+				}
+			}
+			
+		} catch (Exception e)
+		{
+			System.out.println(e.getMessage()+".........................");
 		}
+		
 		
 		//BackupDatabase();
 	}
