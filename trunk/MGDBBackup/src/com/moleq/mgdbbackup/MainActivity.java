@@ -102,11 +102,11 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 	//---begin---check---// 
 		public void check()
 		{
-			if(!android.os.Environment.MEDIA_MOUNTED.equals(android.os.Environment.getExternalStorageState()))
+			/*if(!android.os.Environment.MEDIA_MOUNTED.equals(android.os.Environment.getExternalStorageState()))
 			{
 				Toast("No Valid SDCard!");
 				return;
-			}
+			}*/
 				
 			if (!PROP_PATH.exists())
 			{
@@ -532,6 +532,9 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 					public void onClick(DialogInterface dialog, int which)
 					{
 						Intent intent = new Intent(MainActivity.this, BackupBroadCast.class);
+						Bundle bl = new Bundle();
+						bl.putString("type", "Now");
+						intent.putExtras(bl);
 						sendBroadcast(intent);
 						Toast("Backup Finished!");
 					}
@@ -743,6 +746,9 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		try
 		{
 			Intent intent = new Intent(MainActivity.this, BackupBroadCast.class);
+			Bundle bl = new Bundle();
+			bl.putString("type", "Activity");
+			intent.putExtras(bl);
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
 			AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(), 24*3600*1000, pendingIntent);
