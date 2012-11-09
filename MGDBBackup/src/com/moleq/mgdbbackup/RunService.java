@@ -71,7 +71,7 @@ public class RunService extends Service
 	{
 		if ("ON".equals(i2))
 		{
-			startIntent();
+			getTime();
 		}
 		else //service call activity and notice turning on enable auto-backup 
 		{
@@ -82,7 +82,26 @@ public class RunService extends Service
 		}
 	}
 	
-	public void startIntent()
+	public void getTime()
+	{
+		Calendar now = Calendar.getInstance();
+		now.add(Calendar.DATE, 0);
+		long nowLong = now.getTimeInMillis();
+		long alarmLong = calendar.getTimeInMillis();
+		if (alarmLong>=nowLong)
+		{
+			System.out.println("alarmLong >= nowLong");
+			startIntent(alarmLong);
+		} 
+		else
+		{
+			System.out.println("alarmLong < nowLong");
+			long nextLong = alarmLong + 24*3600*1000;
+			startIntent(nextLong);
+		}
+	}
+	
+	public void startIntent(long time)
 	{
 		try
 		{
@@ -92,7 +111,7 @@ public class RunService extends Service
 			intent.putExtras(bl);
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
 			AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(), 24*3600*1000, pendingIntent);
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,time, 24*3600*1000, pendingIntent);
 			deleteDB(Integer.parseInt(i5));
 		} catch (Exception e)
 		{
