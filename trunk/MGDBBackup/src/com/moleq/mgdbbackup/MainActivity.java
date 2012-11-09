@@ -22,6 +22,7 @@ import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.gesture.GestureOverlayView.OnGestureListener;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -728,7 +729,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		{
 			System.out.println("ON");
 			pro.setProperty("i2", "ON");
-			startIntent();
+			getTime();
 		}
 		else 
 		{
@@ -741,7 +742,28 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		display();
 	}
 	
-	public void startIntent()
+	public void getTime()
+	{
+		Calendar now = Calendar.getInstance();
+		now.add(Calendar.DATE, 0);
+		long nowLong = now.getTimeInMillis();
+		long alarmLong = calendar.getTimeInMillis();
+		if (alarmLong>=nowLong)
+		{
+			System.out.println("alarmLong >= nowLong");
+			startIntent(alarmLong);
+		} 
+		else
+		{
+			System.out.println("alarmLong < nowLong");
+			long nextLong = alarmLong + 24*3600*1000;
+			startIntent(nextLong);
+		}
+	}
+	
+	
+	
+	public void startIntent(long time)
 	{
 		try
 		{
@@ -751,7 +773,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			intent.putExtras(bl);
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
 			AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(), 24*3600*1000, pendingIntent);
+			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,time, 24*3600*1000, pendingIntent);
 			deleteDB(Integer.parseInt(i5));
 		} catch (Exception e)
 		{
@@ -781,7 +803,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		calendar.set(Calendar.MINUTE, min);
 		
 		if ("ON".equals(pro.getProperty("i2")))
-			startIntent();
+			getTime();
 		else
 			Toast("Warning:--Enable auto-backup is OFF--");
 		display();
