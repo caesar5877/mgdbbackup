@@ -6,8 +6,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.sql.Date;
+
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -44,6 +46,7 @@ public class BackupBroadCast extends BroadcastReceiver
 				{
 					BackupDatabase(RunService.arrayPackage[i], RunService.arrayDB[i]);
 				}
+				deleteDB(Integer.parseInt(MainActivity.i5));
 			} 
 			else if("Activity".equals(intent.getExtras().getString("type")))
 			{
@@ -63,6 +66,7 @@ public class BackupBroadCast extends BroadcastReceiver
 				{
 					BackupDatabase(MainActivity.arrayPackage[i], MainActivity.arrayDB[i]);
 				}
+				deleteDB(Integer.parseInt(MainActivity.i5));
 			}
 			else if ("Now".equals(intent.getExtras().getString("type")))
 			{
@@ -82,6 +86,7 @@ public class BackupBroadCast extends BroadcastReceiver
 				{
 					BackupDatabase(MainActivity.arrayPackage[i], MainActivity.arrayDB[i]);
 				}
+				deleteDB(Integer.parseInt(MainActivity.i5));
 			}
 			
 		} catch (Exception e)
@@ -121,6 +126,75 @@ public class BackupBroadCast extends BroadcastReceiver
 			writeLog(LOG_FULL_NAME, "Error!-->"+e.getMessage());
 		}
 	}
+	
+	
+	//-----begin----deletedb--------------//
+		public void deleteDB(int day) throws Exception
+		{
+			File PATH_FILE = new File(MainActivity.i1);
+			System.out.println("deleteDB-->" + PATH_FILE);
+			Date date;
+			Date dateNow;
+			Calendar cal = Calendar.getInstance();
+			Calendar calNow = Calendar.getInstance();
+			File[] delFile;
+			if (PATH_FILE.exists() && PATH_FILE.isDirectory())
+			{
+				delFile = PATH_FILE.listFiles(new FileFilterUtil());
+				int i = delFile.length;
+				System.out.println(delFile.length);
+				for (int j = 0; j < i; j++)
+				{
+					if (delFile[j].isDirectory())
+					{
+						date = new Date(delFile[j].lastModified());
+						dateNow = new Date();
+						cal.setTime(date);
+						calNow.setTime(dateNow);
+						int dec = calNow.get(Calendar.DAY_OF_YEAR)
+								- cal.get(Calendar.DAY_OF_YEAR);
+
+						if (dec >= day)
+						{
+							//System.out.println(delFile[j].getName());
+							del(delFile[j].getAbsolutePath());
+							//System.out.println(delFile[j].getAbsolutePath());
+							//delFile[j].delete();
+						}
+					}
+				}
+
+			}
+
+		}
+		//-----end------deletedb--------------//
+		// delete filepath 下面全部内容
+		public void del(String filepath) throws Exception
+		{
+			File f = new File(filepath);
+			if (f.exists() && f.isDirectory())
+			{
+				if(f.listFiles().length !=0)
+				{
+					File delFile[] = f.listFiles();
+					System.out.println(f.listFiles().length);
+					int i = f.listFiles().length;
+					for (int j = 0; j < i; j++)
+					{
+						if (delFile[j].isDirectory())
+						{
+							del(delFile[j].getAbsolutePath());
+						}
+						delFile[j].delete();
+					}
+				}
+				if (f.listFiles().length == 0)
+				{
+					f.delete();
+					writeLog(LOG_FULL_NAME, "Deleted!-->"+ f.getAbsolutePath());
+				} 
+			}
+		}
 	
 	//----begin----writeLog----//
 	public void writeLog(String file, String content)
