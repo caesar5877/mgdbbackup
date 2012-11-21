@@ -112,7 +112,7 @@ public class RunService extends Service
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
 			AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 			alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,time, 24*3600*1000, pendingIntent);
-			deleteDB(Integer.parseInt(i5));
+			//deleteDB(Integer.parseInt(i5));
 		} catch (Exception e)
 		{
 			System.out.println(e.getMessage()+".........");
