@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -23,7 +25,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.gesture.GestureOverlayView.OnGestureListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,7 +103,46 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 		loadConfig();
 		setDB();
 		display();
+		new startService().execute();
 	}
+	
+	
+	
+	class startService extends AsyncTask<String, Integer, String>
+	{
+		@Override
+		protected String doInBackground(String... params)
+		{
+			if (isWorked())
+			{
+				System.out.println("isWorked()-->true");
+			}
+			else 
+			{
+				System.out.println("isWorked()-->false");
+				startService(new Intent("com.android.runservice"));
+			}
+			
+			return null;
+		}
+		
+		
+		public boolean isWorked()
+		{
+			ActivityManager myManager=(ActivityManager) getSystemService(Context.ACTIVITY_SERVICE); 
+			ArrayList<RunningServiceInfo> runningService = (ArrayList<RunningServiceInfo>) myManager.getRunningServices(30);
+			for(int i = 0 ; i<runningService.size();i++) 
+			{
+				 if(runningService.get(i).service.getClassName().toString().equals("com.moleq.mgdbbackup.RunService")) 
+				 {
+					 return true;
+				 }
+			}
+			return false;
+		}
+	}
+	
+
 	
 	//---begin---check---// 
 		public void check()
