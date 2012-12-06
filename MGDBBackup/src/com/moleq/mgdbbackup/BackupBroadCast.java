@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -141,9 +142,40 @@ public class BackupBroadCast extends BroadcastReceiver
 			if (PATH_FILE.exists() && PATH_FILE.isDirectory())
 			{
 				delFile = PATH_FILE.listFiles(new FileFilterUtil());
-				int i = delFile.length;
-				System.out.println(delFile.length);
-				for (int j = 0; j < i; j++)
+				//int i = delFile.length;
+				//System.out.println(delFile.length);
+				
+				if (delFile !=null && delFile.length>0)
+				{
+					FileWrapper [] fileWrappers = new FileWrapper[delFile.length];
+					
+					for (int i = 0; i < delFile.length; i++)
+					{
+						fileWrappers[i] = new FileWrapper(delFile[i]);
+					}
+					Arrays.sort(fileWrappers);
+					File[] sortedFiles = new File[delFile.length];
+					for (int i = 0; i < delFile.length; i++)
+					{
+						sortedFiles[i] = fileWrappers[i].getFile();
+						System.out.println("sortedFiles["+i+"]-->"+sortedFiles[i].getName());
+					}
+					
+					for (int i = 0; i < sortedFiles.length; i++)
+					{
+						if (i>=day)
+						{
+							System.out.println("del--sortedFiles["+i+"]-->"+sortedFiles[i].getName());
+							del(sortedFiles[i].getAbsolutePath());
+						}
+					}
+				}
+				
+				
+				
+				
+				
+				/*for (int j = 0; j < i; j++)
 				{
 					if (delFile[j].isDirectory())
 					{
@@ -162,7 +194,7 @@ public class BackupBroadCast extends BroadcastReceiver
 							//delFile[j].delete();
 						}
 					}
-				}
+				}*/
 
 			}
 
