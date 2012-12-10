@@ -200,7 +200,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			pro.put("t2", "Enable auto-backup");
 			pro.put("t3", "Auto-backup time");
 			pro.put("t4", "Backup Status");
-			pro.put("t5", "How Many Copys Backups");
+			pro.put("t5", "How Many Copys Backup");
 			pro.put("t6", "Backup DB Now");
 			pro.put("t7", "Backup Multiple DBs");
 			pro.put("i1", "/mnt/sdcard/MoleQ/dbbackup/");
