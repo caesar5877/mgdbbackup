@@ -39,7 +39,7 @@ public class winActivity extends Activity implements OnClickListener
 			String dayStr = et_days.getText().toString().trim();
 			if("".equals(dayStr))
 			{
-				et_days.setError("Invalid Days!");  
+				et_days.setError("Invalid Copys!");  
 				et_days.requestFocus();  
                 return;
 			}

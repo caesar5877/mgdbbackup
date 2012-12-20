@@ -505,7 +505,7 @@ public class MainActivity extends ListActivity implements OnTimeSetListener
 			if (position==3)
 				holder.viewBtn.setText("History");
 			if (position==4)
-				holder.viewBtn.setText("Set Days");
+				holder.viewBtn.setText("Click");
 			if (position==5)
 				holder.viewBtn.setText("Click");
 			if (position==6)
