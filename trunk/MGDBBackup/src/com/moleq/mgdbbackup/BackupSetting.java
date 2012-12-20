@@ -23,7 +23,33 @@ public class BackupSetting
 		return properties;
 	}
 	
+	public Properties loadConfig(String file)
+	{
+		Properties properties = new Properties();
+		try
+		{
+			FileInputStream s = new FileInputStream(file);
+			properties.load(s);
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return properties;
+	}
+	
 	public void saveConfig(Context context, String file, Properties properties)
+	{
+		try
+		{
+			FileOutputStream s = new FileOutputStream(file, false);
+			properties.store(s, "");
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void saveConfig(String file, Properties properties)
 	{
 		try
 		{
