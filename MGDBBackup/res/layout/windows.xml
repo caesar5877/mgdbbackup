@@ -42,7 +42,7 @@
         android:layout_x="17dp"
         android:layout_y="50dp"
         android:textSize="23px"
-        android:text="Days: " />
+        android:text="Copys: " />
     
      <ImageView android:id="@+id/icon"
         android:layout_width="50dip"
